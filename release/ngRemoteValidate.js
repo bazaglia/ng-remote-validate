@@ -76,7 +76,7 @@
                                     break;
                                 }
                             }
-							
+
                             var canSetKey = ( useKeys &&
                                               response[ i ].hasOwnProperty( 'config' ) &&
                                               options.keys[ response[ i ].config.url ] );
@@ -87,7 +87,7 @@
                             }
                         }
                         if( !skipCache ) {
-                            addToCache( response );    
+                            addToCache( response );
                         }
                         ngModel.$setValidity( directiveId, isValid );
                         ngModel.$processing = ngModel.$pending = ngForm.$pending = false;
@@ -104,15 +104,18 @@
                         }
 
                         if ( cache[ value ] ) {
+                            if (request) {
+                                $timeout.cancel(request);
+                            }
                             return setValidation( cache[ value ], true );
                         }
-                        
-                        //Set processing now, before the delay. 
+
+                        //Set processing now, before the delay.
                         //Check first to reduce DOM updates
                         if( !ngModel.$pending ) {
                             ngModel.$processing = ngModel.$pending = ngForm.$pending = true;
                         }
-                        
+
                         if ( request ) {
                             $timeout.cancel( request );
                         }
@@ -123,9 +126,9 @@
                                 l = options.urls.length,
                                 toValidate = { value: value },
                                 httpOpts = { method: options.ngRemoteMethod };
-                            
-                            if ( scope[ el[0].name + 'SetArgs' ] ) {
-                                toValidate = scope[el[0].name + 'SetArgs'](value, el, attrs, ngModel);
+
+                            if ( scope.$parent[ el[0].name + 'SetArgs' ] ) {
+                                toValidate = scope.$parent[el[0].name + 'SetArgs'](value, el, attrs, ngModel);
                             }
 
                             if(options.ngRemoteMethod == 'POST'){
@@ -145,7 +148,7 @@
                             }
 
                             $q.all( calls ).then( setValidation );
-                            
+
                         }, options.ngRemoteThrottle );
                         return true;
                     };
@@ -161,5 +164,5 @@
     angular.module( 'remoteValidation', [] )
            .constant('MODULE_VERSION', '0.6.1')
            .directive( directiveId, [ '$http', '$timeout', '$q', remoteValidate ] );
-           
+
 })( this.angular );
